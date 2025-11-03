@@ -5,8 +5,8 @@ import 'package:flutter_ruler_picker/flutter_ruler_picker.dart';
 import '../../../constent/my_colors.dart';
 
 class BmiDetailsScreen extends StatefulWidget {
-  BmiDetailsScreen({super.key});
-
+  BmiDetailsScreen({super.key, required this.gender});
+final String gender;
   @override
   State<BmiDetailsScreen> createState() => _BmiDetailsScreenState();
 }
@@ -278,7 +278,7 @@ class _BmiDetailsScreenState extends State<BmiDetailsScreen> {
                                 buildColumn('${weight} Kg','Weight'),
                                 buildColumn('${height.toInt()} cm','Height'),
                                 buildColumn('${age}','Age'),
-                                buildColumn('Male','Gender'),
+                                buildColumn('${widget.gender}','Gender'),
                               ],)
                             ],
                           ),
@@ -328,17 +328,30 @@ String getResult(double h, int w) {
   return result.toStringAsFixed(2);
 
 }
-String getresult(double x){
+Widget getresult(double x){
   if(x<18.5){
-    return 'Underweight';
+    return RichText(text: TextSpan(children: [
+      TextSpan(text: 'You are underweight'),
+      TextSpan(text: 'bmi<18.5'),
+    ]));
   }
   else if( x>=18.5 && x<24.9){
-    return 'Normal weight';
+    return RichText(text: TextSpan(children: [
+      TextSpan(text: 'You have a healthy weight'),
+      TextSpan(text: 'bmi>18.5 && bmi<24.9'),
+    ]));
   }
   else if( x>=25 && x<29.9){
-    return 'Overweight';
+    return RichText(text: TextSpan(children: [
+      TextSpan(text: 'You are slightly overweight'),
+      TextSpan(text: 'nbmi>25 && bmi<29.9'),
+    ]));
   }
   else ( x>=30 && x<40);
-  return 'Obesity';
+  return RichText(text: TextSpan(children: [
+    TextSpan(text: 'You are severely obese'),
+    TextSpan(text: 'bmi>=30 && bmi<40'),
+  ]));
+
 
 }
