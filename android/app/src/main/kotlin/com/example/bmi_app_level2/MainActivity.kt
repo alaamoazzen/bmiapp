@@ -1,0 +1,5 @@
+package com.example.bmi_app_level2
+
+import io.flutter.embedding.android.FlutterActivity
+
+class MainActivity: FlutterActivity()
