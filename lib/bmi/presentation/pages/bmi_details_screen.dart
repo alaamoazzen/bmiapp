@@ -1,12 +1,17 @@
+import 'package:bmi_app_level2/bmi/presentation/pages/bmi_screen.dart';
+import 'package:bmi_app_level2/bmi/presentation/widgets/costum_rich_text.dart';
 import 'package:bmi_app_level2/constent/my_images.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ruler_picker/flutter_ruler_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../constent/my_colors.dart';
 
 class BmiDetailsScreen extends StatefulWidget {
   BmiDetailsScreen({super.key, required this.gender});
-final String gender;
+
+  final String gender;
+
   @override
   State<BmiDetailsScreen> createState() => _BmiDetailsScreenState();
 }
@@ -15,25 +20,45 @@ class _BmiDetailsScreenState extends State<BmiDetailsScreen> {
   int weight = 50;
   int age = 25;
   double height = 160;
+  double? lastBmi;
+
+  Future<void> getBmi() async {
+    final prefs = await SharedPreferences.getInstance();
+    double? storedBmi = prefs.getDouble("bmi");
+
+    setState(() {
+      lastBmi = storedBmi;
+    });
+  }
+
+  void saveBmi(double bmi) async {
+    final pref = await SharedPreferences.getInstance();
+    pref.setDouble('bmi', bmi);
+  }
+
+  // ✅ دالة قراءة آخر قيمة
+
+
+  // ✅ دالة حذف القيمة
+  Future<void> _clearBmi() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove("bmi");
+
+    setState(() {
+      lastBmi = null;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MyColors.white,
       appBar: AppBar(
-        leading: Icon(Icons.arrow_back_ios_new,color: MyColors.green ,),
-        title: RichText(
-          text: TextSpan(style: TextStyle(fontSize: 32), children: [
-            TextSpan(
-                text: 'BMI ',
-                style: TextStyle(
-                    color: MyColors.yellow, fontWeight: FontWeight.bold)),
-            TextSpan(
-                text: 'Calculator',
-                style: TextStyle(
-                    color: MyColors.green, fontWeight: FontWeight.bold)),
-          ]),
-        ),
+        leading: IconButton(onPressed: () {
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (context) => BmiScreen(),));
+        }, icon: Icon(Icons.arrow_back_ios_new), color: MyColors.green,),
+        title: CostumRichText(text1: 'BMI',),
         backgroundColor: MyColors.white,
         toolbarHeight: 100,
         centerTitle: true,
@@ -253,47 +278,62 @@ class _BmiDetailsScreenState extends State<BmiDetailsScreen> {
                   height: 50,
                   child: ElevatedButton(
                     onPressed: () {
+                      double result = getResult(height, weight);
+                      saveBmi(result);
+                      print(result);
+                      print(lastBmi);
                       showDialog(
                         context: context,
-                        builder: (context) => AlertDialog(
-                          backgroundColor: MyColors.blue,
-                          content: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                'Your BMI:',
-                                style: TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.bold),
-                              ),
-                              Text(('${getResult(height, weight)}'),
-                                  style: TextStyle(
-                                      fontSize: 64,
-                                      fontWeight: FontWeight.bold,
-                                      color: MyColors.green1)),
-                              Image.asset(MyImages.bmiBar),
-                              SizedBox(height: 20,),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        builder: (context) =>
+                            AlertDialog(
+                              backgroundColor: MyColors.blue,
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
-                                buildColumn('${weight} Kg','Weight'),
-                                buildColumn('${height.toInt()} cm','Height'),
-                                buildColumn('${age}','Age'),
-                                buildColumn('${widget.gender}','Gender'),
-                              ],)
-                            ],
-                          ),
-                          actions: [SizedBox(width: 290,height: 50,
-                            child: ElevatedButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                              child: Text(
-                                'Close',
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24,color: MyColors.white),
-                              ),style: ElevatedButton.styleFrom(backgroundColor: MyColors.green),
+                                  Text(
+                                    'Your BMI:',
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  Text((result.toStringAsFixed(2)),
+                                      style: TextStyle(
+                                          fontSize: 64,
+                                          fontWeight: FontWeight.bold,
+                                          color: MyColors.green1)),
+                                  Image.asset(MyImages.bmiBar),
+                                  SizedBox(height: 20,),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment
+                                        .spaceEvenly,
+                                    children: [
+                                      buildColumn('${weight} Kg', 'Weight'),
+                                      buildColumn(
+                                          '${height.toInt()} cm', 'Height'),
+                                      buildColumn('${age}', 'Age'),
+                                      buildColumn('${widget.gender}', 'Gender'),
+                                    ],),
+                                  getInfo(result),
+                                ],
+                              ),
+                              actions: [SizedBox(width: 290, height: 50,
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child: Text(
+                                    'Close',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 24,
+                                        color: MyColors.white),
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                      backgroundColor: MyColors.green),
+                                ),
+                              )
+                              ],
                             ),
-                          )],
-                        ),
                       );
                     },
                     child: Text(
@@ -315,43 +355,49 @@ class _BmiDetailsScreenState extends State<BmiDetailsScreen> {
     );
   }
 
-  Column buildColumn(String text1,String text2) {
+  Widget buildColumn(String text1, String text2) {
     return Column(children: [
-                                Text(text1,style:  TextStyle(color: MyColors.green1,fontSize: 20),),
-                                Text(text2,style:  TextStyle(fontSize: 14,color: MyColors.grey1))
-                              ],);
+      Text(text1, style: TextStyle(color: MyColors.green1, fontSize: 20),),
+      Text(text2, style: TextStyle(fontSize: 14, color: MyColors.grey1))
+    ],);
+  }
+
+  double getResult(double h, int w) {
+    double result = (w) / (h * h * 0.0001);
+    saveBmi(result);
+    return result;
+  }
+
+  Widget getInfo(double x) {
+    if (x < 18.5) {
+      return RichText(
+          text: TextSpan(style: TextStyle(color: MyColors.black), children: [
+            TextSpan(text: 'You are underweight'),
+            TextSpan(text: 'bmi<18.5'),
+          ]));
+    }
+    else if (x >= 18.5 && x < 24.9) {
+      return RichText(
+          text: TextSpan(style: TextStyle(color: MyColors.black), children: [
+            TextSpan(text: 'You have a healthy weight'),
+            TextSpan(text: 'bmi>18.5 && bmi<24.9'),
+          ]));
+    }
+    else if (x >= 25 && x < 29.9) {
+      return RichText(
+          text: TextSpan(style: TextStyle(color: MyColors.black), children: [
+            TextSpan(text: 'You are slightly overweight'),
+            TextSpan(text: 'nbmi>25 && bmi<29.9'),
+          ]));
+    }
+    else
+      (x >= 30 && x < 40);
+    return RichText(
+        text: TextSpan(style: TextStyle(color: MyColors.black), children: [
+          TextSpan(text: 'You are severely obese'),
+          TextSpan(text: 'bmi>=30 && bmi<40'),
+        ]));
   }
 }
 
-String getResult(double h, int w) {
-  double result = (w) / (h * h * 0.0001);
-  return result.toStringAsFixed(2);
 
-}
-Widget getresult(double x){
-  if(x<18.5){
-    return RichText(text: TextSpan(children: [
-      TextSpan(text: 'You are underweight'),
-      TextSpan(text: 'bmi<18.5'),
-    ]));
-  }
-  else if( x>=18.5 && x<24.9){
-    return RichText(text: TextSpan(children: [
-      TextSpan(text: 'You have a healthy weight'),
-      TextSpan(text: 'bmi>18.5 && bmi<24.9'),
-    ]));
-  }
-  else if( x>=25 && x<29.9){
-    return RichText(text: TextSpan(children: [
-      TextSpan(text: 'You are slightly overweight'),
-      TextSpan(text: 'nbmi>25 && bmi<29.9'),
-    ]));
-  }
-  else ( x>=30 && x<40);
-  return RichText(text: TextSpan(children: [
-    TextSpan(text: 'You are severely obese'),
-    TextSpan(text: 'bmi>=30 && bmi<40'),
-  ]));
-
-
-}
