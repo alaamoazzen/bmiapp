@@ -11,5 +11,8 @@ class MyColors {
   static Color brown=Color(0xff9D6F1F);
   static Color white=Colors.white;
   static Color black=Colors.black;
+  static Color blueResult=Colors.blue.shade200;
+  static Color yellowResult=Colors.yellow.shade600;
+  static Color redResult=Colors.red;
   static Color grey=Colors.grey.shade300 ;
 }

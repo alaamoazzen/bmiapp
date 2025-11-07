@@ -4,6 +4,7 @@ import 'package:bmi_app_level2/bmi/presentation/widgets/costum_text.dart';
 import 'package:bmi_app_level2/bmi/presentation/widgets/custom_card.dart';
 import 'package:bmi_app_level2/constent/my_colors.dart';
 import 'package:bmi_app_level2/constent/my_images.dart';
+import 'package:bmi_app_level2/constent/responsive.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -41,7 +42,7 @@ class _BmiScreenState extends State<BmiScreen> {
       appBar: AppBar(
         title: CostumRichText(text1: 'BMI '),
         backgroundColor: MyColors.white,
-        toolbarHeight: 100,
+        toolbarHeight: context.screenHeight*0.15,
         centerTitle: true,
       ),
       backgroundColor: MyColors.white,
@@ -55,7 +56,7 @@ class _BmiScreenState extends State<BmiScreen> {
           lastBmi!=null? Text('${lastBmi}'):SizedBox(),
 
           Padding(
-            padding: const EdgeInsets.all(20.0),
+            padding: EdgeInsets.all(context.screenHeight*0.03),
             child: CustomCard(
               onTap: () {
                 setState(() {
@@ -74,7 +75,7 @@ class _BmiScreenState extends State<BmiScreen> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(right: 20.0, left: 20, top: 10),
+            padding:  EdgeInsets.only(right: context.screenHeight*0.03, left: context.screenHeight*0.03, top: context.screenHeight*0.01),
             child: CustomCard(
               onTap: () {
                 setState(() {
@@ -92,10 +93,10 @@ class _BmiScreenState extends State<BmiScreen> {
               image: MyImages.frame2,
             ),
           ),
-          SizedBox(height: 50),
+          SizedBox(height: context.screenHeight*0.07),
           SizedBox(
-            width: 290,
-            height: 50,
+            width: context.screenWidth*0.8,
+            height: context.screenHeight*0.07,
             child: ElevatedButton(
               onPressed: () {
                 if (containerColorM == MyColors.green) {

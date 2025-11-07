@@ -12,11 +12,11 @@ final   String text1 ;
         TextSpan(
             text: text1,
             style: TextStyle(
-                color: MyColors.orange, fontWeight: FontWeight.bold)),
+                color: MyColors.yellow, )),
         TextSpan(
             text: 'Calculator',
             style: TextStyle(
-                color: MyColors.brown, fontWeight: FontWeight.bold)),
+                color: MyColors.green, fontWeight: FontWeight.bold)),
       ]),
     );
   }
